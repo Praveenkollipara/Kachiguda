@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="center" style="max-width:1100px;">
+  <section class="card" style="margin-top:20px;">
+    <header class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>Media Manager</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data"
+              class="upload-topbar" id="pageUploadForm" style="display:flex;gap:8px;">
+          <input type="file" name="file" id="pageUpload" accept="image/*,video/*" hidden />
+          <button type="button" class="btn ghost small" id="pageUploadBtn">Upload Media</button>
+        </form>
+        <a href="{{ url_for('waitlist_admin') }}" class="btn small">Back to Waitlist</a>
+      </div>
+    </header>
+
+    {% if media_files %}
+      <div class="media-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:14px;">
+        {% for f in media_files %}
+          {% set ext = f.split('.')[-1].lower() %}
+          <div class="card" style="padding:10px;display:flex;flex-direction:column;">
+            <div style="font-weight:600; font-size:0.95rem; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ f }}">{{ f }}</div>
+
+            {% if ext in ['png','jpg','jpeg','gif','webp'] %}
+              <img src="{{ url_for('media', filename=f) }}" alt="{{ f }}"
+                   style="width:100%; height:140px; object-fit:cover; border-radius:10px;">
+            {% else %}
+              <video src="{{ url_for('media', filename=f) }}" muted preload="metadata"
+                     style="width:100%; height:140px; object-fit:cover; border-radius:10px; background:#000;"></video>
+            {% endif %}
+
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+              <a class="btn ghost small" href="{{ url_for('media', filename=f) }}" target="_blank">view</a>
+              <form method="post" action="{{ url_for('media_delete') }}"
+                    onsubmit="return confirm('Delete {{ f }} ?');">
+                <input type="hidden" name="filename" value="{{ f }}">
+                <button class="btn small danger" type="submit">delete</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="muted" style="padding:16px;">No media found. Use <b>Upload Media</b> to add files.</div>
+    {% endif %}
+  </section>
+</div>
+
+<script>
+  (function(){
+    const pickBtn = document.getElementById("pageUploadBtn");
+    const input   = document.getElementById("pageUpload");
+    const form    = document.getElementById("pageUploadForm");
+    if(pickBtn && input && form){
+      pickBtn.addEventListener("click", ()=> input.click());
+      input.addEventListener("change", ()=> { if(input.files?.length) form.submit(); });
+    }
+  })();
+</script>
+{% endblock %}

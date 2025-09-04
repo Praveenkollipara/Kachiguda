@@ -1,0 +1,365 @@
+/* =========================
+   Kachiguda — Clean Minimal UI
+   ========================= */
+
+/* ---------- Theme ---------- */
+:root{
+  --bg-1:#090c12; --bg-2:#0a1220;
+  --panel:#0e1622; --card:#0f1b2a;
+  --text:#eaf1ff; --muted:#93a4bb;
+  --border:rgba(147,164,187,.18);
+  --primary:#6ee7ff; --accent:#8b5cf6; --info:#22d3ee;
+  --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  --glow: 0 0 24px rgba(110,231,255,.25);
+  --nav-h: 64px;
+}
+
+[data-theme="sunset"]{
+  --bg-1:#0a0a0a; --bg-2:#1a0d12;
+  --panel:#1e1014; --card:#231219;
+  --text:#fff3ee; --muted:#c9aab2;
+  --border:rgba(255,170,170,.18);
+  --primary:#ff9d66; --accent:#ff5ea8; --info:#ff9d66;
+  --ok:#9ef5a2; --warn:#ffd166; --danger:#ff6b6b;
+  --glow: 0 0 24px rgba(255,94,168,.28);
+}
+
+/* ---------- Page base ---------- */
+@keyframes bgShift{0%{background-position:0 0}50%{background-position:100% 100%}100%{background-position:0 0}}
+html,body{height:100%}
+body{
+  margin:0; color:var(--text);
+  background:
+    radial-gradient(1200px 1200px at 10% 0%, rgba(139,92,246,.12), transparent 60%),
+    radial-gradient(1200px 1200px at 90% 100%, rgba(34,211,238,.10), transparent 60%),
+    linear-gradient(135deg,var(--bg-1),var(--bg-2) 40%, var(--bg-1));
+  background-size:200% 200%; animation:bgShift 22s ease-in-out infinite;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+.muted{ color:var(--muted); }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+
+/* ---------- Topbar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:10px 18px; min-height:var(--nav-h);
+  background: linear-gradient(180deg, rgba(2,6,12,.6), rgba(2,6,12,.2));
+  backdrop-filter: blur(10px); border-bottom:1px solid var(--border);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.06), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.topbar .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px; }
+.topbar .brand .logo-full{ height:40px; width:auto; }
+.topbar .links{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.topbar .links a{ color:var(--text); text-decoration:none; font-weight:600; opacity:.9 }
+.topbar .links a:hover{ opacity:1; text-decoration:underline }
+.btn.small{ padding:8px 10px; font-size:.9rem; border-radius:10px; }
+.upload-topbar{ display:inline-flex; align-items:center; }
+.theme{ background:transparent; border:1px solid var(--border); border-radius:999px; padding:8px 12px; color:var(--text); cursor:pointer; }
+
+/* ---------- Layout ---------- */
+.two-col{
+  display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:stretch;
+  height: calc(100vh - var(--nav-h) - 16px);
+  padding:18px;
+}
+.center{ max-width:1150px; margin:24px auto; padding:0 16px; }
+
+/* ---------- Cards ---------- */
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid var(--border); border-radius:16px; box-shadow: var(--glow);
+  display:block; overflow:hidden;
+}
+.card-hd{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:1px solid var(--border);
+}
+.card h2{ margin:0; }
+
+/* ---------- Buttons ---------- */
+.btn{
+  appearance:none; border:none; cursor:pointer; font-weight:700;
+  padding:10px 14px; border-radius:12px; color:#051016;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 6px 22px rgba(0,0,0,.35);
+  transition: transform .08s ease, filter .15s ease;
+}
+.btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--border); }
+.btn.primary{ background: linear-gradient(135deg, #60a5fa, var(--primary)); color:#08121a; }
+.btn.info{ background: linear-gradient(135deg, var(--info), var(--primary)); color:#08121a; }
+.btn.danger{ background: linear-gradient(135deg, #ff8a8a, var(--danger)); color:#2a0707; }
+.btn:hover{ filter: brightness(1.05); } .btn:active{ transform: translateY(1px); }
+
+/* ---------- Forms ---------- */
+.grid2{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; align-items:start;
+  padding:16px;
+}
+.grid2 > div{ min-width:0; display:flex; flex-direction:column; gap:8px; }
+label{ color:var(--muted); font-size:.9rem; }
+input, textarea, select{
+  width:100%; max-width:100%; box-sizing:border-box; display:block;
+  padding:12px 14px; border-radius:12px; border:1px solid var(--border);
+  background: rgba(7,12,20,.6); color:var(--text);
+}
+input:focus, textarea:focus, select:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(110,231,255,.15), inset 0 1px 0 rgba(255,255,255,.05);
+  outline: none;
+}
+.form textarea{ min-height:140px; resize:vertical; }
+.actions{ display:flex; justify-content:flex-end; margin-top:16px; }
+.actions .btn{ width:auto; min-width:120px; }
+
+/* ---------- Table (sticky header) ---------- */
+.table-wrap{ height:100%; overflow-x:auto; }
+.table{ width:100%; border-collapse:separate; border-spacing:0; min-width:520px; }
+.table thead th{
+  text-align:left; font-weight:700; color:var(--muted);
+  position:sticky; top:0; z-index:2;
+  background: rgba(15,27,42,.92); backdrop-filter: blur(6px);
+  padding:10px 12px; border-bottom:1px solid var(--border);
+}
+.table tbody td{ padding:12px; vertical-align:middle; }
+.status.waiting{ color:#fbbf24 } .status.assigning{ color:#60a5fa } .status.seated{ color:#22c55e }
+
+/* ---------- Left: Promo / Hero Carousel ---------- */
+.media.hero{ padding:0; height:100%; display:flex; flex-direction:column; overflow:hidden; }
+.hero-stage{
+  position:relative; flex:1; border-radius:18px; overflow:hidden;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.06), transparent 40%),
+              linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.08));
+}
+.hero-slide{ position:absolute; inset:0; opacity:0; transform:scale(1.01); transition:opacity .6s, transform .6s; }
+.hero-slide.active{ opacity:1; transform:scale(1); }
+.hero-slide img, .hero-slide video{ width:100%; height:100%; object-fit:cover; display:block; }
+.hero-vignette{ position:absolute; inset:0; background:
+  radial-gradient(60% 40% at 80% 20%, rgba(0,0,0,0), rgba(0,0,0,.35) 70%),
+  linear-gradient(0deg, rgba(0,0,0,.18), rgba(0,0,0,0)); pointer-events:none;
+}
+.hero-dots{ position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:2; pointer-events:none; }
+.hero-dots .dot{ width:8px; height:8px; border-radius:999px; background:rgba(255,255,255,.35); box-shadow:0 1px 6px rgba(0,0,0,.35); }
+.hero-dots .dot.on{ background:rgba(255,255,255,.95); }
+
+/* ---------- Right: Scrollable waitlist panel ---------- */
+.sidebar.scrollable{ display:flex; flex-direction:column; overflow:hidden; }
+.scroll-body{ flex:1; min-height:0; overflow-y:auto; }
+
+/* ---------- Flash ---------- */
+.flash{ list-style:none; margin:8px 18px; padding:0; }
+.flash li{ padding:10px 12px; border-radius:10px; margin:6px 0; }
+.flash-success{ background: rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.35); }
+.flash-error{ background: rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.35); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px){
+  .two-col{ grid-template-columns:1fr; height:auto; }
+  .topbar .brand .logo-full{ height:36px; }
+  .scroll-body{ max-height:60vh; }
+}
+@media (max-width: 768px){
+  .grid2{ grid-template-columns:1fr; }
+  .actions{ justify-content:center; }
+  .player, .hero-stage{ aspect-ratio:4/3; }
+}
+@media (max-width: 480px){
+  .topbar .brand .logo-full{ height:30px; }
+  .btn.small{ padding:6px 10px; font-size:.85rem; }
+  .table{ min-width:420px; } /* horizontal swipe available */
+}
+
+/* ---------- Utilities ---------- */
+td, th{ word-break: break-word; }
+
+
+/* --- Lock the page; only right pane scrolls (desktop) --- */
+html, body { height: 100%; }
+body { overflow: hidden; }                 /* stop whole-page scrolling */
+
+/* grid fills the viewport below the navbar */
+:root { --nav-h: 64px; }                   /* already set; ensure correct */
+.topbar { min-height: var(--nav-h); }
+
+.two-col{
+  height: calc(100vh - var(--nav-h));      /* full viewport minus navbar */
+  padding: 16px 18px;                      /* avoid extra vertical overflow */
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr;          /* promo | waitlist */
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* Left promo: fill height and never scroll */
+.media.hero{ height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.media.hero .hero-stage{ flex: 1; border-radius: 18px; overflow: hidden; }
+
+/* Right waitlist: internal scroller */
+.sidebar.scrollable{ display: flex; flex-direction: column; overflow: hidden; }
+.sidebar.scrollable .scroll-body{ flex: 1; min-height: 0; overflow-y: auto; }
+
+/* Sticky table header inside the right scroller */
+.table-wrap{ height: 100%; }
+.table{ width: 100%; border-collapse: separate; border-spacing: 0; min-width: 520px; }
+.table thead th{
+  position: sticky; top: 0; z-index: 2;
+  background: rgba(15,27,42,.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Flash messages shouldn't push layout; cap height */
+.flash{ max-height: 56px; overflow: auto; margin: 8px 18px; }
+
+/* On smaller screens, allow normal page scroll and stack columns */
+@media (max-width: 1024px){
+  body { overflow: auto; }                 /* allow page scroll on mobile/tablet */
+  .two-col{ grid-template-columns: 1fr; height: auto; }
+  .sidebar.scrollable .scroll-body{ max-height: 60vh; }
+}
+
+
+.two-col{ grid-template-columns: 1.7fr 1fr; }
+/* Hide native file input in navbar; we trigger it via button */
+.upload-topbar input[type="file"]{
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: block !important; /* keep in DOM so JS can trigger it */
+}
+
+
+/* ====== Responsive layout ====== */
+
+/* Topbar sizing + wrap on small screens */
+:root { --nav-h: 64px; }
+.topbar { position: sticky; top: 0; z-index: 50; min-height: var(--nav-h); }
+.topbar .links { display: flex; flex-wrap: wrap; gap: 20px; }
+.logo-full { height: 32px; }
+
+/* Two-column -> single column */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+}
+
+/* Media stage sizing */
+.hero-stage { 
+  width: 100%;
+  height: clamp(220px, 36vh, 520px);
+  overflow: hidden;
+  border-radius: 14px;
+}
+.hero-stage img,
+.hero-stage video { width: 100%; height: 100%; object-fit: cover; }
+
+/* Right panel scroll area should never push page */
+.card.sidebar { display: flex; flex-direction: column; }
+.card.sidebar .scroll-body {
+  overflow: auto;
+  /* leave room for navbar + card paddings */
+  max-height: calc(100vh - var(--nav-h) - 160px);
+}
+
+/* Table tweaks */
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { white-space: nowrap; }
+
+/* --- Tablet (<= 1024px): stack columns --- */
+@media (max-width: 1024px) {
+  .two-col { grid-template-columns: 1fr; }
+  .card.sidebar .scroll-body { max-height: calc(100vh - var(--nav-h) - 220px); }
+  .hero-stage { height: clamp(220px, 40vh, 520px); }
+}
+
+/* --- Phone (<= 640px): tighten spacing, hide wide columns --- */
+@media (max-width: 640px) {
+  .topbar .links { gap: 6px; }
+  .logo-full { height: 26px; }
+
+  .card { padding: 14px; }
+  .card-hd h2 { font-size: 1.1rem; }
+
+  /* Hide Seats and Reserved-at on small screens to prevent overflow */
+  .table th:nth-child(2),
+  .table td:nth-child(2),
+  .table th:nth-child(4),
+  .table td:nth-child(4) 
+
+  /* Let each row wrap if needed */
+  .table th, .table td { white-space: normal; }
+}
+
+
+/* =========================
+   Admin view: mobile polish
+   ========================= */
+
+/* Base tweaks that are safe everywhere */
+.table th, .table td { padding: 10px 12px; font-size: 14px; }
+.btn { padding: 8px 14px; font-size: 14px; line-height: 1.1; }
+.btn.small { padding: 6px 10px; font-size: 13px; }
+
+/* Make pill buttons not explode width */
+.btn { min-width: auto; }
+
+/* Topbar: allow wrap and shrink spacing */
+.topbar { padding: 10px 14px; }
+.topbar .links { flex-wrap: wrap; gap: 8px; }
+.topbar .btn, .topbar a { font-size: 14px; }
+
+/* Flash message compact */
+.flash li { padding: 8px 10px; font-size: 14px; }
+
+/* ===== Tablet and down ===== */
+@media (max-width: 1024px) {
+  .card { padding: 16px; }
+  .card-hd h2 { font-size: 1.2rem; }
+
+  /* keep right panel from pushing page */
+  .card.sidebar .scroll-body {
+    max-height: calc(100vh - var(--nav-h,64px) - 200px);
+  }
+}
+
+/* ===== Phones ===== */
+@media (max-width: 640px) {
+  /* Smaller typography and paddings */
+  .table { font-size: 13px; }
+  .table th, .table td { padding: 8px 10px; }
+  .card { padding: 12px; }
+  .card-hd h2 { font-size: 1.05rem; }
+
+  /* Topbar super compact */
+  .logo-full { height: 24px; }
+  .topbar { padding: 8px 10px; }
+  .topbar .links { gap: 6px; }
+  .topbar a, .topbar .btn { font-size: 13px; padding: 6px 10px; }
+
+  /* Buttons inside table: compact */
+  .table .btn { font-size: 12px; padding: 6px 8px; }
+  .table .btn.small { font-size: 12px; padding: 5px 8px; }
+
+  /* If assign / delete are in the last 2 columns, keep them narrow */
+  .table td:nth-last-child(1) .btn,
+  .table td:nth-last-child(2) .btn { width: 68px; text-align: center; }
+
+  /* If your buttons sit in the same cell, stack them nicely */
+  .table td .btn + .btn { margin-left: 6px; }
+  @supports (display: grid) {
+    .table td.actions { display: grid; grid-auto-flow: row; gap: 6px; }
+    .table td.actions .btn { width: 100%; }
+  }
+
+  /* Optional: hide a wide column on very small screens */
+  @media (max-width: 480px) {
+    /* Hide Notes column to gain space (3rd col) */
+    .table th:nth-child(3),
+    .table td:nth-child(3) { display: none; }
+  }
+}

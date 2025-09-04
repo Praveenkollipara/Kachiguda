@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="center">
+  <section class="card">
+    <header class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>Manage Waitlist</h2>
+      <form method="get" action="{{ url_for('waitlist_admin') }}">
+      <button class="btn ghost small">⟳ Refresh</button>
+      </form>
+    </header>
+
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Seats</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Phone Number</th>
+            <th>Seat</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.name }}</td>
+            <td>{{ r.seats }}</td>
+            <td class="status {{ r.status|lower }}">{{ r.status }}</td>
+            <td class="muted">{{ r.notes or '' }}</td>
+            <td class="muted">{{ r.phone }}</td>
+
+            <td>
+              {% if r.status != 'SEATED' %}
+              <form method="post" action="{{ url_for('waitlist_seated', item_id=r.id) }}">
+                <button class="btn primary small block">seated</button>
+              </form>
+              {% else %}
+              <span class="muted">—</span>
+              {% endif %}
+            </td>
+
+            <td class="actions">
+              {% if r.status in ['WAITING','ASSIGNING'] %}
+              <form method="post" action="{{ url_for('waitlist_assign', item_id=r.id) }}">
+                <button class="btn info small block">assign</button>
+              </form>
+              {% endif %}
+              <form method="post" action="{{ url_for('waitlist_delete', item_id=r.id) }}">
+                <button class="btn danger small block">delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

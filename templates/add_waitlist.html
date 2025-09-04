@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="center">
+  <section class="card form">
+    <header class="card-hd">
+      <h2>Add a Party to the Waitlist</h2>
+    </header>
+
+    <form method="post" action="{{ url_for('add_waitlist_submit') }}" class="grid2">
+      <div>
+        <label>Name</label>
+        <input name="name" placeholder="Full name" required />
+      </div>
+
+      <div>
+        <label>Phone Number</label>
+        <input name="phone" type="tel" placeholder="(555) 555-5555" required />
+      </div>
+
+      <div>
+        <label>Seats</label>
+        <input name="seats" type="number" min="1" value="2" required />
+      </div>
+
+      <div>
+        <label>Notes</label>
+        <textarea name="notes" placeholder="Allergies, occasion, etc."></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn">➕ Submit</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

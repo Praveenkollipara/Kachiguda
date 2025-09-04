@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="two-col">
+
+  <!-- Promo / Media Player -->
+  <section class="card media hero">
+    <div class="hero-stage" id="player" data-interval="7000">
+      {% if media_files %}
+        {% for f in media_files %}
+          {% set ext = f.split('.')[-1].lower() %}
+          <div class="hero-slide{% if loop.index==1 %} active{% endif %}">
+            {% if ext in ['png','jpg','jpeg','gif','webp'] %}
+              <img src="{{ url_for('media', filename=f) }}" alt="{{ f }}">
+            {% else %}
+              <video src="{{ url_for('media', filename=f) }}" muted playsinline preload="metadata"></video>
+            {% endif %}
+            <div class="hero-vignette"></div>
+          </div>
+        {% endfor %}
+        <div class="hero-dots">
+          {% for f in media_files %}
+            <span class="dot{% if loop.index==1 %} on{% endif %}"></span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="hero-empty">
+          <div>Upload promos in <b>/media</b>.</div>
+          <div class="muted">Images: png/jpg/jpeg/webp · Videos: mp4/webm/ogg/m4v/mov</div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Right Panel: COME ON IN or Waitlist -->
+  <aside class="card sidebar scrollable">
+    <header class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>
+        {% if display_mode == 'waitlist' %}Current Waitlist{% else %}Welcome{% endif %}
+      </h2>
+      {% if display_mode == 'waitlist' %}
+      <button class="btn ghost" id="refresh-btn">⟳ Refresh</button>
+      {% endif %}
+    </header>
+
+    {% if display_mode != 'waitlist' %}
+      <!-- COME ON IN -->
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;padding:24px;">
+        <div>
+          <div style="font-size:58px;font-weight:900;letter-spacing:1px;">COME ON IN</div>
+          <div class="muted" style="margin-top:8px;font-size:18px;">We’re ready to serve you.</div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Waitlist Table -->
+      <div class="table-wrap scroll-body">
+        <table class="table" id="wl">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Seats</th>
+              <th>Status</th>
+              <th>reserved at (ET)</th>
+              <th>wait (min)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows %}
+              {% set start_ts = r.assigned_at if (r.status == 'ASSIGNING' and r.assigned_at) else r.requesttime %}
+              <tr>
+                <td>{{ r.name }}</td>
+                <td>{{ r.seats }}</td>
+                <td class="status {{ r.status.lower() }}">{{ r.status }}</td>
+                <td class="muted">{{ r.requesttime|est }}</td>
+                <td class="mono" data-start="{{ start_ts }}Z">0</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </aside>
+
+</div>
+
+<script>
+(function(){
+  // --- Media dots + slides auto cycle ---
+  const stage = document.getElementById('player');
+  if(stage){
+    const slides = Array.from(stage.querySelectorAll('.hero-slide'));
+    const dots = Array.from(stage.querySelectorAll('.hero-dots .dot'));
+    if(slides.length){
+      let idx=0, t=null;
+      const interval = parseInt(stage.dataset.interval)||7000;
+
+      function setActive(i){
+        slides.forEach((s,j)=>s.classList.toggle('active', j===i));
+        dots.forEach((d,j)=>d.classList.toggle('on', j===i));
+        const v = slides[i].querySelector('video');
+        if(v){ try{v.currentTime=0; v.muted=true; v.play();}catch(e){} v.onended=next; reset(null);}
+        else { reset(interval); }
+      }
+      function next(){ idx=(idx+1)%slides.length; setActive(idx); }
+      function reset(ms){ if(t) clearTimeout(t); if(ms) t=setTimeout(next,ms); }
+      setActive(0);
+    }
+  }
+
+  // --- Skip timers/refresh if not running ---
+  const isRunning = {{ (display_mode == 'waitlist') | tojson }};
+  if (!isRunning) return;
+
+  // --- Refresh waitlist ---
+  const refreshBtn=document.getElementById('refresh-btn');
+  async function refresh(){
+    const res=await fetch("{{ url_for('api_waitlist') }}");
+    const data=await res.json();
+    const tbody=document.querySelector("#wl tbody");
+    tbody.innerHTML="";
+    data.forEach(it=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td>${it.name}</td>
+        <td>${it.seats}</td>
+        <td class="status ${it.status.toLowerCase()}">${it.status}</td>
+        <td class="muted">${it.requesttime_et}</td>
+        <td class="mono" data-start="${it.timer_start_utc}">0</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  refreshBtn?.addEventListener('click', refresh);
+  setInterval(refresh, 20000);
+
+  // --- Timers ---
+  function tick(){
+    document.querySelectorAll("td[data-start]").forEach(td=>{
+      const ts=td.getAttribute("data-start");
+      if(ts){
+        const d=new Date(ts);
+        const mins=Math.max(0,Math.floor((Date.now()-d.getTime())/60000));
+        td.textContent=mins;
+      }
+    });
+  }
+  setInterval(tick,60000); tick();
+
+})();
+</script>
+{% endblock %}

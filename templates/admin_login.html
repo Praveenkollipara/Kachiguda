@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="center">
+  <section class="card form" style="max-width:420px;margin:40px auto;">
+    <header class="card-hd"><h2>Admin Login</h2></header>
+    <form method="post" action="{{ url_for('admin_login_post') }}" class="grid2" style="grid-template-columns:1fr;">
+      <input type="hidden" name="next" value="{{ next or '' }}">
+      <div>
+        <label>Admin PIN</label>
+        <input name="pin" type="password" inputmode="numeric" placeholder="••••••" required>
+      </div>
+      <div class="actions">
+        <button class="btn">Sign In</button>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
