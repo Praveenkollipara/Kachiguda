@@ -2,13 +2,24 @@
 {% block content %}
 <div class="center">
   <section class="card">
-    <header class="card-hd" style="display:flex;justify-content:space-between;align-items:center;">
+    <header class="card-hd" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
       <h2>Manage Waitlist</h2>
-      <form method="get" action="{{ url_for('waitlist_admin') }}">
-      <button class="btn ghost small">⟳ Refresh</button>
-      </form>
-    </header>
 
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <!-- Date (ET) filter -->
+        <form method="get" action="{{ url_for('waitlist_admin') }}" id="dateFilter" style="display:flex;gap:8px;align-items:center;">
+          <label for="d" class="muted" style="font-size:.95rem;"> Date </label>
+          <input type="date" id="d" name="d" value="{{ selected_date }}" class="input"
+                 style="padding:.45rem .6rem;border-radius:10px;background:var(--panel);color:var(--text);border:1px solid var(--panel-2);" />
+          
+          <button type="button" class="btn ghost small" id="todayBtn">Today</button>
+        </form>
+
+        <form method="get" action="{{ url_for('waitlist_admin', d=selected_date) }}">
+          <button class="btn ghost small" title="Refresh">⟳ Refresh</button>
+        </form>
+      </div>
+    </header>
 
     <div class="table-wrap">
       <table class="table">
@@ -20,6 +31,7 @@
             <th>Status</th>
             <th>Notes</th>
             <th>Phone Number</th>
+            <th>Requested At (ET)</th>
             <th>Seat</th>
             <th class="actions-col">Actions</th>
           </tr>
@@ -33,6 +45,7 @@
             <td class="status {{ r.status|lower }}">{{ r.status }}</td>
             <td class="muted">{{ r.notes or '' }}</td>
             <td class="muted">{{ r.phone }}</td>
+            <td class="muted">{{ r.requesttime|est }}</td>
 
             <td>
               {% if r.status != 'SEATED' %}
@@ -61,4 +74,28 @@
     </div>
   </section>
 </div>
+
+<script>
+  (function(){
+    // Auto-submit when date changes
+    const d = document.getElementById('d');
+    const form = document.getElementById('dateFilter');
+    const todayBtn = document.getElementById('todayBtn');
+
+    if(d && form){
+      d.addEventListener('change', ()=> form.requestSubmit());
+    }
+
+    if(todayBtn && d && form){
+      todayBtn.addEventListener('click', ()=>{
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth()+1).padStart(2,'0');
+        const dd = String(now.getDate()).padStart(2,'0');
+        d.value = `${yyyy}-${mm}-${dd}`;
+        form.requestSubmit();
+      });
+    }
+  })();
+</script>
 {% endblock %}

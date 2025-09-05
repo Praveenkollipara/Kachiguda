@@ -1,10 +1,11 @@
 from __future__ import annotations
 import os, sqlite3
 from contextlib import closing
-from datetime import datetime, timezone
 from functools import wraps
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import datetime, timezone, timedelta
+
 from flask import (
     Flask, g, render_template, request, redirect, url_for,
     flash, jsonify, send_from_directory, session
@@ -168,6 +169,22 @@ def utc_str_to_et(ts: str) -> str:
 def jinja_est(ts: str) -> str:
     return utc_str_to_et(ts)
 
+def et_bounds_for(date_str: str | None):
+    """
+    Given YYYY-MM-DD (in Eastern), return that day's UTC [start,end) strings
+    matching the DB '%Y-%m-%d %H:%M:%S' format. Defaults to today ET.
+    """
+    if not date_str:
+        date_str = datetime.now(EASTERN).strftime('%Y-%m-%d')
+
+    d = datetime.strptime(date_str, '%Y-%m-%d')
+    start_et = datetime(d.year, d.month, d.day, 0, 0, 0, tzinfo=EASTERN)
+    end_et   = start_et + timedelta(days=1)
+
+    start_utc = start_et.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+    end_utc   = end_et.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+    return date_str, start_utc, end_utc
+
 # ---------------- Pages ----------------
 @app.get("/")
 def home():
@@ -216,12 +233,19 @@ def add_waitlist_submit():
 @app.get("/waitlist")
 @admin_required
 def waitlist_admin():
+    # ET date filter
+    date_str = request.args.get("d")
+    selected_date, start_utc, end_utc = et_bounds_for(date_str)
+
     rows = get_db().execute("""
       SELECT * FROM waitlist
       WHERE deleted_at IS NULL
+        AND datetime(requesttime) >= datetime(?)
+        AND datetime(requesttime) <  datetime(?)
       ORDER BY datetime(requesttime) ASC
-    """).fetchall()
-    return render_template("waitlist_admin.html", rows=rows)
+    """, (start_utc, end_utc)).fetchall()
+
+    return render_template("waitlist_admin.html", rows=rows, selected_date=selected_date)
 
 # --- Media Manager page (admin) ---
 @app.get("/media/manage")
@@ -241,7 +265,7 @@ def waitlist_assign(item_id: int):
         WHERE id=? AND deleted_at IS NULL
     """, (now_utc, item_id))
     db.commit()
-    return redirect(url_for("waitlist_admin"))
+    return redirect(request.referrer or url_for("waitlist_admin"))
 
 @app.post("/waitlist/<int:item_id>/seated")
 @admin_required
@@ -255,7 +279,7 @@ def waitlist_seated(item_id: int):
         WHERE id=? AND deleted_at IS NULL
     """, (now_utc, item_id))
     db.commit()
-    return redirect(url_for("waitlist_admin"))
+    return redirect(request.referrer or url_for("waitlist_admin"))
 
 @app.post("/waitlist/<int:item_id>/delete")
 @admin_required
@@ -269,7 +293,7 @@ def waitlist_delete(item_id: int):
     """, (now_utc, item_id))
     db.commit()
     flash("Entry removed.", "success")
-    return redirect(url_for("waitlist_admin"))
+    return redirect(request.referrer or url_for("waitlist_admin"))
 
 # ---- Display mode controls (Admin-only) ----
 @app.post("/display/start")
@@ -277,14 +301,14 @@ def waitlist_delete(item_id: int):
 def display_start():
     set_setting("display_mode", "waitlist")
     flash("Display started. Home now shows the waitlist.", "success")
-    return redirect(url_for("waitlist_admin"))
+    return redirect(request.referrer or url_for("waitlist_admin"))
 
 @app.post("/display/stop")
 @admin_required
 def display_stop():
     set_setting("display_mode", "open")
     flash("Display stopped. Home shows 'COME ON IN'.", "success")
-    return redirect(url_for("waitlist_admin"))
+    return redirect(request.referrer or url_for("waitlist_admin"))
 
 # ---- Admin auth ----
 @app.get("/admin/login")

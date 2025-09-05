@@ -270,6 +270,31 @@ body { overflow: hidden; }                 /* stop whole-page scrolling */
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td { white-space: nowrap; }
 
+/* Make the calendar icon white on dark backgrounds (Chromium/WebKit) */
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  color: white;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Ensure the date text stays readable on dark themes */
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"] {
+  color: var(--text);
+}
+
+/* Ask browsers to prefer dark UI where supported */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+
+
+
 /* --- Tablet (<= 1024px): stack columns --- */
 @media (max-width: 1024px) {
   .two-col { grid-template-columns: 1fr; }
